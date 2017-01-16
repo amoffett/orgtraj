@@ -6,7 +6,7 @@
 import numpy as np
 import pandas as pd
 
-def prepare(data, features, trajfile, frames = None, states = None, **metadata):
+def prepare(data, features, traj_file, frames = None, states = None, **metadata):
 	"""
 	Takes a numpy array of features along with trajectory metadata and produces a 
 	Pandas dataframe and metadata dictionary.
@@ -24,7 +24,7 @@ def prepare(data, features, trajfile, frames = None, states = None, **metadata):
 		states = [0]*data.shape[0]
 	index = pd.MultiIndex(levels=[frames,states],labels=[range(data.shape[0]),range(data.shape[0])],names=['frame','state'])		
 	df = pd.DataFrame(data,columns=features,index=index)
-	metadata['traj_file'] = trajfile
+	metadata['traj_file'] = traj_file
 	return df, metadata
 
 def h5dump(filename, df, dataset = 'traj', **metadata):
@@ -82,7 +82,7 @@ class orgtraj():
         	- states: list of MSM states corresponding to frames. Default set to 0 for all frames.
         	- **metadata: keyword arguments defining additional metadata.
         	"""	
-		data, metadata = prepare(data,features,trajfile,frames=frames,states=states,**metadata)
+		data, metadata = prepare(data,features,traj_file,frames=frames,states=states,**metadata)
                 self.data = data
 		for key, value in metadata.items():
                         setattr(self, key, value)
