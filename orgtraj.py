@@ -25,6 +25,8 @@ def prepare(data, features, traj_file, frames = None, states = None, **metadata)
 	index = pd.MultiIndex(levels=[frames,states],labels=[range(data.shape[0]),range(data.shape[0])],names=['frame','state'])		
 	df = pd.DataFrame(data,columns=features,index=index)
 	metadata['traj_file'] = traj_file
+	metadata['frames'] = frames
+	metadata['states'] = states
 	return df, metadata
 
 def h5dump(filename, df, dataset = 'traj', **metadata):
