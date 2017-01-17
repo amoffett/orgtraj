@@ -17,6 +17,9 @@ def prepare(data, features, traj_file, frames = None, states = None, **metadata)
 	- frames: list of frames. Default set to [1, 2, 3, ..., N].
 	- states: list of MSM states corresponding to frames. Default set to 0 for all frames.
 	- **metadata: keyword arguments defining additional metadata.
+	Returns:
+	- df: pandas dataframe of features.
+	- metadata: dictionary of featurization metadata.
 	"""
 	if frames == None:
 		frames = range(1,data.shape[0]+1)
@@ -46,7 +49,7 @@ def h5load(filename, dataset = 'traj'):
 	Load HDF5 format file created using h5dump.
 	Input:
 	- filename: name of .h5 file (written using 'h5dump' or the class method 'trajwrite') to load.
-	Output:
+	Returns:
 	- data: pandas DataFrame object.
 	- metadata: dictionary containing the original trajectory filename and additional metadata.
 	"""
@@ -54,6 +57,26 @@ def h5load(filename, dataset = 'traj'):
 		data = store[dataset]
 		metadata = store.get_storer(dataset).attrs.metadata
 	return data, metadata
+
+def find_frame(point, orgtraj_list):
+    	"""
+    	Returns the trajectory name and the frame number of the structure
+    	closest to the N-dimensional point specified in a feature space. 
+    	Input:
+    	- point: list of coordinates of desired point in feature space (by column of pandas dataframes).
+    	- orgtraj_list: list of orgtraj objects of the desired features.
+    	Returns: traj_file, frame
+    	- traj_file: the name of the trajectory with the frame closest to the specific point.
+    	- frame: the mdtraj frame number (starting at 0) for the closest frame to the specific point.
+    	"""
+    	datalist = [obj.data for obj in orgtraj_list]
+    	if len(point) != datalist[0].shape[1]:
+    		raise ValueError("Point dimension must match feature space dimension.") 
+    	point = np.array(point)
+    	n_traj = np.argmin([np.min(np.sum((np.array(i)-point)*(np.array(i)-point))) for i in datalist])
+    	traj_file = orgtraj_list[n_traj].traj_file
+    	frame = np.argmin(abs(np.array(datalist[n_traj])-point)) - 1
+    	return traj_file, frame
 
 class orgtraj():
 	"""
@@ -77,7 +100,7 @@ class orgtraj():
         	Input:
         	- data: numpy array containing a featurized trajectory (N frames X D features)
         	- features: list of strings describing the feature dimensions.
-        	- trajfile: name of the trajectory file features were calculated from.
+        	- traj_file: name of the trajectory file features were calculated from.
         	- frames: list of frames. Default set to [1, 2, 3, ..., N].
         	- states: list of MSM states corresponding to frames. Default set to 0 for all frames.
         	- **metadata: keyword arguments defining additional metadata.
@@ -86,10 +109,19 @@ class orgtraj():
                 self.data = data
 		for key, value in metadata.items():
                         setattr(self, key, value)
-
+			
+	def trajread(self, infile):
+		"""
+		Load dataset and metadata from an orgtraj-created .h5 file into orgtraj instance.
+		"""
+		data, metadata = h5load(infile)
+		self.data = data
+		for key, value in metadata.items():
+                        setattr(self, key, value) 
+		
 	def trajwrite(self, outfile, dataset = 'traj'):
 		"""
-		Writes dataset and metadata to an .h5 file to be loaded with h5load.
+		Writes dataset and metadata from orgtraj instance to an .h5 file to be loaded with h5load.
 		"""
 		meta = dict()
 		attrs = vars(self)
