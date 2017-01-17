@@ -59,24 +59,24 @@ def h5load(filename, dataset = 'traj'):
 	return data, metadata
 
 def find_frame(point, orgtraj_list):
-    	"""
-    	Returns the trajectory name and the frame number of the structure
-    	closest to the N-dimensional point specified in a feature space. 
-    	Input:
-    	- point: list of coordinates of desired point in feature space (by column of pandas dataframes).
-    	- orgtraj_list: list of orgtraj objects of the desired features.
-    	Returns: traj_file, frame
-    	- traj_file: the name of the trajectory with the frame closest to the specific point.
-    	- frame: the mdtraj frame number (starting at 0) for the closest frame to the specific point.
-    	"""
-    	datalist = [obj.data for obj in orgtraj_list]
-    	if len(point) != datalist[0].shape[1]:
-    		raise ValueError("Point dimension must match feature space dimension.") 
-    	point = np.array(point)
-    	n_traj = np.argmin([np.min(np.sum((np.array(i)-point)*(np.array(i)-point))) for i in datalist])
-    	traj_file = orgtraj_list[n_traj].traj_file
-    	frame = np.argmin(abs(np.array(datalist[n_traj])-point)) - 1
-    	return traj_file, frame
+	"""
+	Returns the trajectory name and the frame number of the structure
+	closest to the N-dimensional point specified in a feature space. 
+	Input:
+	- point: list of coordinates of desired point in feature space (by column of pandas dataframes).
+	- orgtraj_list: list of orgtraj objects of the desired features.
+	Returns: traj_file, frame
+	- traj_file: the name of the trajectory with the frame closest to the specific point.    	
+	- frame: the mdtraj frame number (starting at 0) for the closest frame to the specific point.
+	"""
+	datalist = [obj.data for obj in orgtraj_list]
+	if len(point) != datalist[0].shape[1]:
+		raise ValueError("Point dimension must match feature space dimension.") 
+	point = np.array(point)
+	n_traj = np.argmin([np.min(np.sum((np.array(i)-point)*(np.array(i)-point))) for i in datalist])
+	traj_file = orgtraj_list[n_traj].traj_file
+	frame = np.argmin(abs(np.array(datalist[n_traj])-point)) - 1
+	return traj_file, frame
 
 class orgtraj():
 	"""
