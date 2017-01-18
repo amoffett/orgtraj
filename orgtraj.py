@@ -73,9 +73,9 @@ def find_frame(point, orgtraj_list):
 	if len(point) != datalist[0].shape[1]:
 		raise ValueError("Point dimension must match feature space dimension.") 
 	point = np.array(point)
-	n_traj = np.argmin([np.min(np.sum((np.array(i)-point)*(np.array(i)-point))) for i in datalist])
+	n_traj = np.argmin([np.min(np.sum((np.array(i)-point)*(np.array(i)-point),axis=1)) for i in datalist])
 	traj_file = orgtraj_list[n_traj].traj_file
-	frame = np.argmin(abs(np.array(datalist[n_traj])-point)) - 1
+	frame = np.argmin(np.sum((np.array(datalist[n_traj])-point)*(np.array(datalist[n_traj])-point),axis=1)) - 1
 	return traj_file, frame
 
 class orgtraj():
