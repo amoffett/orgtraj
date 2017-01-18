@@ -67,7 +67,8 @@ def find_frame(point, orgtraj_list):
 	- orgtraj_list: list of orgtraj objects of the desired features.
 	Returns: traj_file, frame
 	- traj_file: the name of the trajectory with the frame closest to the specific point.    	
-	- frame: the mdtraj frame number (starting at 0) for the closest frame to the specific point.
+	- frame: the frame number (corresponding to the frame number in the orgtraj dataframe) for 
+	the closest frame to the specific point.
 	"""
 	datalist = [obj.data for obj in orgtraj_list]
 	if len(point) != datalist[0].shape[1]:
@@ -80,7 +81,7 @@ def find_frame(point, orgtraj_list):
 	n_traj = np.argmin([np.min(point_dist(i,point)) for i in datalist])
 	traj_file = orgtraj_list[n_traj].traj_file
 	frame_index = np.argmin(point_dist(datalist[n_traj],point))
-	frame = orgtraj_list[n_traj].index[frame_index][0]
+	frame = datalist[n_traj].index[frame_index][0]
 	return traj_file, frame
 
 class orgtraj():
