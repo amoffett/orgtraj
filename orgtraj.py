@@ -84,6 +84,23 @@ def find_frame(point, orgtraj_list):
 	frame = datalist[n_traj].index[frame_index][0]
 	return traj_file, frame
 
+def combine(orgtraj_list):
+	"""
+	Returns a single pandas dataframe from a list of orgtraj instances with the trajectory file names
+	in a third index.
+	Input:
+	- orgtraj_list: list of orgtraj objects.
+	Returns:
+	- labeled: a single pandas dataframe with trajectory file names in a third index column.  
+	"""
+	dataframe_list = []
+	for org in orgtraj_list:
+		org.data['traj_file'] = org.traj_file
+		org.data.set_index('traj_file', append=True, inplace=True)
+		dataframe_list.append(org.data)
+	labeled = pd.concat(dataframe_list)
+	return labeled
+
 class orgtraj():
 	"""
 	Class to create organized featurized trajectory objects.
